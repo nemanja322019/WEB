@@ -1,0 +1,264 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <style>
+        body {
+            margin-left: 50px;
+            background-image: url("../bg.png");
+            background-size: cover;
+        }
+        .textbox {
+            height: 60px;
+            width: 400px;
+        }
+
+        label{
+            margin-left:30px;
+        }
+
+        .styled-table {
+            border-collapse: collapse;
+            font-size: 0.9em;
+            font-family: sans-serif;
+            min-width: 400px;
+            background-color: white;
+            border-top-color: black;
+            border-bottom-color: black;
+            border-left-color: black;
+            border-right-color: black;
+        }
+
+            .styled-table th,
+            .styled-table td {
+                padding: 5px;
+                text-align: center;
+            }
+
+            .styled-table tr,
+            .styled-table td {
+                padding: 5px;
+                text-align: center;
+            }
+
+        .btnPrijaviTrening{
+            width:100%;
+        }
+
+        .divPosetilac1{
+            float:right;
+            margin-right:800px;
+        }
+
+        .pocetnaBtn {
+        }
+
+    </style>
+    <title></title>
+    <script src="../Scripts/jquery-3.3.1.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var centar;
+            var fcNaziv;
+            var vlasnik;
+            var ulogovan = false;
+            var korisnik = null;
+            if (sessionStorage.getItem("logged") !== null) {
+                var json = sessionStorage.getItem("logged");
+                korisnik = $.parseJSON(json);
+                ulogovan = true;
+            }
+            loadDetails();
+            function loadDetails() {
+                $('#divPosetilac').hide();
+                if (sessionStorage.getItem("logged") !== null) {
+                    var json = sessionStorage.getItem("logged");
+                    korisnik = $.parseJSON(json);
+                    if (korisnik.Uloga === "Posetilac") {
+                        $('#divPosetilac').show();
+                    }
+                }
+                var naziv = window.location.search.slice(1).split('&')[0].split('=')[1];
+                naziv = naziv.split('_').join(' ');
+                console.log(naziv)
+                $.get("/api/fitnes_centri", function (data) {
+                    var podaci = data.find(x => x.Naziv === naziv)
+                    centar = podaci.Naziv;
+                    vlasnik = podaci.Vlasnik;
+                    fcNaziv = podaci.Naziv;
+                    let ispis = '<table class="styled-table" border = 1><tr><th>Naziv</th><th>Adresa</th><th>Godina Otvaranja</th><th>Vlasnik</th><th>Mesecna Clanarina</th><th>Godisnja Clanarina</th><th>Cena Treninga</th><th>Cena Grupnog Treninga</th><th>Cena Personalnog Treninga</th></tr><tr>'
+                    ispis += '<td>' + podaci.Naziv + '</td>';
+                    ispis += '<td>' + podaci.Adresa + '</td>';
+                    ispis += '<td>' + podaci.GodinaOtvaranja + '</td>';
+                    ispis += '<td>' + podaci.Vlasnik + '</td>';
+                    ispis += '<td>' + podaci.MesecnaClanarina + '</td>';
+                    ispis += '<td>' + podaci.GodisnjaClanarina + '</td>';
+                    ispis += '<td>' + podaci.CenaTreninga + '</td>';
+                    ispis += '<td>' + podaci.CenaGrupnogTreninga + '</td>';
+                    ispis += '<td>' + podaci.CenaPersonalnogTreninga + '</td>';
+                    ispis += '</tr></table>';
+                    let div = document.getElementById("detalji")
+                    div.innerHTML = ispis;
+
+                    $.get("/api/trening", function (data) {
+                        let div = document.getElementById("treninzi");
+                        var ispis = "";
+                        ispis = '<table class="styled-table" border = 1><tr><th>Naziv</th><th>Tip treninga</th><th>Fitnes centar</th><th>Trajanje</th><th>Vreme</th><th>Maksimalan broj posetilaca</th><th>Spisak posetilaca</th></tr>';
+                        $.each(data, function (key, value) {
+                            if (value.FitnesCentar === naziv && value.Istekao == false) {
+                                ispis += '<tr><td>' + value.Naziv + '</td>';
+                                ispis += '<td>' + value.TipTreninga + '</td>';
+                                ispis += '<td>' + value.FitnesCentar + '</td>';
+                                ispis += '<td>' + value.Trajanje + '</td>';
+                                ispis += '<td>' + value.Vreme + '</td>';
+                                ispis += '<td>' + value.MaksimalanBrojPosetilaca + '</td>';
+                                let spisak = "";
+                                let nijePrijavljen = true;
+                                let brPrijavljenih = 0;
+                                for (let pos of value.SpisakPosetilaca) {
+                                    brPrijavljenih++;
+                                    spisak += pos + '\n';
+                                    if (korisnik === null) {
+                                        ulogovan = false;
+                                    }
+                                    else {
+                                        if (pos === korisnik.KorisnickoIme) {
+                                            nijePrijavljen = false;
+                                        }
+                                    }
+                                }
+                                ispis += '<td>' + spisak + '</td>';
+
+                                if (ulogovan && nijePrijavljen && brPrijavljenih < value.MaksimalanBrojPosetilaca && korisnik.Uloga === "Posetilac") {
+
+                                    ispis += '<td><button class="btnPrijaviTrening" name="' + value.Naziv + '">Prijavi trening</button></td>';
+                                }
+
+
+                                ispis += '</tr>';
+                            }
+                        });
+                        ispis += '</table>';
+                        div.innerHTML = ispis;
+                    });
+                    $.ajax({
+                        url: '/api/komentari',
+                        type: 'GET',
+                        data: {
+                            'vlasnik': vlasnik
+                        },
+                        dataType: 'json',
+                        success: function (data) {
+                            let ispisOdobreni = "";
+                            let divKomentari = document.getElementById("divKomentari");
+                            $.each(data, function (key, value) {
+                                if (value.Odobren === true && value.FitnesCentar === fcNaziv) {
+                                    ispisOdobreni += '<label>Korisnik: <b>' + value.Korisnik + '</b></label><label>Fitnes Centar: <b>' + value.FitnesCentar + '</b></label><label>Ocena: <b>' + value.Ocena + '</b></label><br/>'
+                                    ispisOdobreni += '<label>' + value.Tekst + '</label><br/><br/>'
+                                }
+                            });
+                            divKomentari.innerHTML = ispisOdobreni;
+                        },
+                        error: function (xhr, status, error) {
+                            alert(error);
+                        }
+                    });
+                });
+
+                
+            }
+
+            $(document).on('click', '.btnPrijaviTrening', function (e) {
+
+                $.ajax({
+                    url: '/api/trening',
+                    type: 'GET',
+                    data: {
+                        'TreningNaziv': e.target.name,
+                        'KorisnickoIme': korisnik.KorisnickoIme
+                    },
+                    dataType: 'json',
+                    success: function (data) {
+                        //alert('Uspesno ste prijavili trening!');
+
+                        $.ajax({
+                            url: '/api/profilna',
+                            type: 'PUT',
+                            data: {
+                                'TreningNaziv': e.target.name,
+                                'KorisnickoIme': korisnik.KorisnickoIme
+                            },
+                            dataType: 'json',
+                            success: function (data) {
+                                alert('Uspesno ste prijavili trening!');
+                                korisnik.PrijavljeniTreninzi.push(e.target.name);
+                                sessionStorage.setItem('logged', JSON.stringify(korisnik));
+                                loadDetails();
+                            },
+                            error: function (xhr, status, error) {
+                                alert(error);
+                            }
+                        });
+
+
+                    },
+                    error: function (xhr, status, error) {
+                        alert(error);
+                    }
+                });
+            });
+
+            $('#btnKomentar').click(function () {
+                $.ajax({
+                    url: '/api/komentari',
+                    type: 'POST',
+                    data: {
+                        'Korisnik': korisnik.KorisnickoIme,
+                        'FitnesCentar': centar,
+                        'Tekst': $('#inputKomentar').val(),
+                        'Ocena': $('#selectOcena').find(":selected").text()
+                    },
+                    dataType: 'json',
+                    success: function (data) {
+                        alert('Komentar poslat.');
+                    },
+                    error: function (xhr, status, error) {
+                        alert(error);
+                    }
+                });
+            });
+
+            $('#btnPocetna').click(function () {
+                window.location = '/index.html';
+            });
+
+        });
+    </script>
+</head>
+<body>
+    <h1>Fitnes centar</h1>
+    <div id="detalji"></div>
+    <h2>Grupni treninzi:</h2>
+    <div id="treninzi"></div>
+    <div id="divPosetilac" hidden>
+        <h3>Komentarisi:</h3>
+        <textarea id="inputKomentar" cols="52" rows="3"></textarea>
+
+        <div class="divPosetilac1">
+            <label>Ocena:</label>
+            <select id="selectOcena">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+            </select>
+            <button id="btnKomentar">Posalji</button>
+        </div>
+    </div>
+    <br/>
+    <button class="pocetnaBtn" id="btnPocetna">Pocetna</button>
+    <h3>Komentari:</h3>
+    <div id="divKomentari"></div>
+</body>
+</html>

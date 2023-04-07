@@ -1,0 +1,98 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <style>
+        body {
+            margin-left: 50px;
+            background-image: url("../bg.png");
+            background-size: cover;
+        }
+        label {
+            margin: 5px;
+        }
+    
+
+    </style>
+    <script src="../Scripts/jquery-3.3.1.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var json = sessionStorage.getItem("logged");
+            var korisnik = $.parseJSON(json);
+
+            loadPage();
+            function loadPage() {
+
+                $.ajax({
+                    url: '/api/komentari',
+                    type: 'GET',
+                    data: {
+                        'vlasnik': korisnik.KorisnickoIme
+                    },
+                    dataType: 'json',
+                    success: function (data) {
+                        loadTable(data);
+                    },
+                    error: function (xhr, status, error) {
+                        alert(error);
+                    }
+                });
+
+            }
+
+            function loadTable(data) {
+                let divOdobreni = document.getElementById("divOdobreniKomentari");
+                var ispisOdobreni = "";
+                let divBlokirani = document.getElementById("divBlokiraniKomentari");
+                var ispisBlokirani = "";
+                $.each(data, function (key, value) {
+                    if (value.Odobren === true) {
+                        ispisOdobreni += '<div class="zaglavlje"><div class="zaglavlje1"><label>Korisnik: <b>' + value.Korisnik + '</b></label><label>Fitnes Centar: <b>' + value.FitnesCentar + '</b></label><label>Ocena: <b>' + value.Ocena + '</b></label>'
+                        ispisOdobreni += '<button class="btnOdobri" name="' + value.Id + '" >Blokiraj</button><br/></div></div>'
+                        ispisOdobreni += '<label>' + value.Tekst + '</label><br/><br/>'
+                    }
+                    else {
+                        ispisBlokirani += '<div class="zaglavlje"><div class="zaglavlje1"><label>Korisnik: <b>' + value.Korisnik + '</b></label><label>Fitnes Centar: <b>' + value.FitnesCentar + '</b></label><label>Ocena: <b>' + value.Ocena + '</b></label>'
+                        ispisBlokirani += '<button class="btnOdobri" name="' + value.Id + '" >Odobri</button><br/></div></div>'
+                        ispisBlokirani += '<label>' + value.Tekst + '</label><br/><br/>'
+                    }
+
+                });
+                divOdobreni.innerHTML = ispisOdobreni;
+                divBlokirani.innerHTML = ispisBlokirani;
+            }
+
+            $(document).on('click', '.btnOdobri', function (e) {
+
+                $.ajax({
+                    url: '/api/komentari',
+                    type: 'GET',
+                    data: {
+                        'Id': e.target.name,
+                        'placeholder': 'caozdravo'
+                    },
+                    dataType: 'json',
+                    success: function (data) {
+                        loadPage();
+                    },
+                    error: function (xhr, status, error) {
+                        alert(error);
+                    }
+                });
+            });
+
+            $('#btnPocetna').click(function () {
+                window.location = '/index.html';
+            });
+        });
+    </script>
+</head>
+<body>
+    <h2>Blokirani komentari: </h2>
+    <div id="divBlokiraniKomentari"></div>
+    <h2>Odobreni komentari: </h2>
+    <div id="divOdobreniKomentari"></div>
+    <button id="btnPocetna">Pocetna</button>
+</body>
+</html>

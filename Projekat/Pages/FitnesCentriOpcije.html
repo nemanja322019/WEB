@@ -1,0 +1,233 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <style>
+        body {
+            /*margin-left: 50px;*/
+            background-image: url("../bg.png");
+            background-size: cover;
+        }
+
+        label {
+            margin: 5px;
+        }
+
+        input{
+            margin-top:3px;
+            left: 200px;
+            position:sticky;
+        }
+
+        .styled-table {
+            border-collapse: collapse;
+            font-size: 0.9em;
+            font-family: sans-serif;
+            min-width: 400px;
+            background-color: white;
+            border-top-color: black;
+            border-bottom-color: black;
+            border-left-color: black;
+            border-right-color: black;
+        }
+
+            .styled-table th,
+            .styled-table td {
+                padding: 5px;
+                text-align: center;
+            }
+
+            .styled-table tr,
+            .styled-table td {
+                padding: 5px;
+                text-align: center;
+            }
+
+        .obrisi{
+            width:100%;
+            height:100%;
+        }
+
+        .dodajBtn{
+            width:70px;
+            margin-top:3px;
+            margin-left:192px;
+            margin-right:26px;
+        }
+        .izmeniBtn {
+            width: 70px;
+        }
+
+        .pocetnaBtn{
+
+            margin-top:5px;
+        }
+
+    </style>
+    <script src="../Scripts/jquery-3.3.1.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var json = sessionStorage.getItem("logged");
+            var korisnik = $.parseJSON(json);
+
+            loadPage();
+
+            function loadPage() {
+
+                $.ajax({
+                    url: '/api/fitnes_centri',
+                    type: 'GET',
+                    data: {
+                    },
+                    dataType: 'json',
+                    success: function (data) {
+                        let divFitnesCentri = document.getElementById("divFitnesCentri");
+                        let ispisFitnesCentri = "";
+                        ispisFitnesCentri = '<table class="styled-table" border = 1><tr><th>Naziv</th><th>Adresa</th><th>Godina otvaranja</th><th>Vlasnik</th><th>Mesecna clanarina</th><th>Godisnja clanarina</th><th>Cena treninga</th><th>Cena grupnog treninga</th><th>Cena personalnog treninga</th></tr>';
+                        $.each(data, function (key, value) {
+                            if (value.Vlasnik === korisnik.KorisnickoIme && value.Obrisan === false) {
+                                ispisFitnesCentri += '<tr>'
+                                ispisFitnesCentri += '<td>' + value.Naziv + '</td><td>' + value.Adresa + '</td><td>' + value.GodinaOtvaranja + '</td><td>' + value.Vlasnik + '</td><td>' + value.MesecnaClanarina + '</td><td>' + value.GodisnjaClanarina + '</td><td>' + value.CenaTreninga + '</td><td>' + value.CenaGrupnogTreninga + '</td><td>' + value.CenaPersonalnogTreninga + '</td>';
+                                ispisFitnesCentri += '<td><button class="obrisi" name="' + value.Naziv + '">Obrisi</button></td>'
+                                ispisFitnesCentri += '</tr>'
+                            }
+                        });
+                        ispisFitnesCentri += '</table>';
+                        divFitnesCentri.innerHTML = ispisFitnesCentri;
+                    },
+                    error: function (xhr, status, error) {
+                        alert(error);
+                    }
+                });
+            }
+
+            $('#btnDodajFitnesCentar').click(function () {
+
+                let ulica = $('#Ulica').val();
+                let mesto = $('#Mesto').val();
+                let postanski = $('#Postanski').val();
+
+                if (!ulica || !mesto || !postanski) {
+                    alert('Adresa mora biti popunjena!');
+                    return;
+                }
+                let adresa = ulica + ', ' + mesto + ', ' + postanski;
+
+                $.ajax({
+                    url: '/api/fitnes_centri',
+                    type: 'POST',
+                    data: {
+                        'Naziv': $('#Naziv').val(),
+                        'Adresa': adresa,
+                        'GodinaOtvaranja': $('#GodinaOtvaranja').val(),
+                        'Vlasnik': korisnik.KorisnickoIme,
+                        'MesecnaClanarina': $('#MesecnaClanarina').val(),
+                        'GodisnjaClanarina': $('#GodisnjaClanarina').val(),
+                        'CenaTreninga': $('#CenaTreninga').val(),
+                        'CenaGrupnogTreninga': $('#CenaGrupnogTreninga').val(),
+                        'CenaPersonalnogTreninga': $('#CenaPersonalnogTreninga').val()
+                    },
+                    dataType: 'json',
+                    success: function (data) {
+                        alert('Fitnes centar uspesno dodat');
+                        loadPage();
+                    },
+                    error: function (xhr, status, error) {
+                        alert(error);
+                    }
+                });
+
+            });
+
+            $('#btnIzmeniFitnesCentar').click(function () {
+
+                let ulica = $('#Ulica').val();
+                let mesto = $('#Mesto').val();
+                let postanski = $('#Postanski').val();
+
+
+                let adresa = ulica + ', ' + mesto + ', ' + postanski;
+                if (!ulica || !mesto || !postanski) {
+                    adresa = "";
+                }
+
+                $.ajax({
+                    url: '/api/fitnes_centri',
+                    type: 'PUT',
+                    data: {
+                        'Naziv': $('#Naziv').val(),
+                        'Adresa': adresa,
+                        'GodinaOtvaranja': $('#GodinaOtvaranja').val(),
+                        'Vlasnik': korisnik.KorisnickoIme,
+                        'MesecnaClanarina': $('#MesecnaClanarina').val(),
+                        'GodisnjaClanarina': $('#GodisnjaClanarina').val(),
+                        'CenaTreninga': $('#CenaTreninga').val(),
+                        'CenaGrupnogTreninga': $('#CenaGrupnogTreninga').val(),
+                        'CenaPersonalnogTreninga': $('#CenaPersonalnogTreninga').val()
+                    },
+                    dataType: 'json',
+                    success: function (data) {
+                        alert('Fitnes centar izmenjen!');
+                        loadPage();
+                    },
+                    error: function (xhr, status, error) {
+                        alert(error);
+                    }
+                });
+            });
+
+            $(document).on('click', '.obrisi', function (e) {
+                $.ajax({
+                    url: '/api/fitnes_centri',
+                    type: 'GET',
+                    data: {
+                        'FitnesCentarNaziv': e.target.name,
+                        'vlasnik': korisnik.KorisnickoIme
+                    },
+                    dataType: 'json',
+                    success: function (data) {
+                        alert('Fitnes centar obrisan!');
+                        let index = korisnik.FitnesCentriVlasnistvo.indexOf(data);
+                        korisnik.FitnesCentriVlasnistvo.splice(index, 1);
+                        sessionStorage.setItem('logged', JSON.stringify(korisnik));
+
+                        loadPage();
+                    },
+                    error: function (xhr, status, error) {
+                        alert(error);
+                    }
+                });
+            });
+
+
+            $('#btnPocetna').click(function () {
+                window.location = '/index.html';
+            });
+
+        });
+    </script>
+</head>
+<body>
+
+    <h1>Novi fitnes centar</h1>
+
+    <label>Naziv:</label> <input type="text" id="Naziv" name="Naziv" /> <br />
+
+    <label>Ulica i broj:</label><input type="text" id="Ulica" name="Ulica" /><br />
+    <label class="mestoLabel">Mesto:</label><input type="text"  id="Mesto" name="Mesto" /><br />
+    <label>Postanski broj:</label><input type="text" id="Postanski" name="Postanski" /><br/>
+
+    <label>Godina otvaranja:</label> <input type="text" id="GodinaOtvaranja" name="GodinaOtvaranja" /> <br />
+    <label>Mesecna clanarina:</label> <input type="number" id="MesecnaClanarina" name="MesecnaClanarina" /> <br />
+    <label>Godisnja clanarina:</label> <input type="number" id="GodisnjaClanarina" name="GodisnjaClanarina" /> <br />
+    <label>Cena treninga:</label> <input type="number" id="CenaTreninga" name="CenaTreninga" /> <br />
+    <label>Cena grupnog treninga:</label> <input type="number" id="CenaGrupnogTreninga" name="CenaGrupnogTreninga" /> <br />
+    <label>Cena personalnog treninga:</label> <input type="number" id="CenaPersonalnogTreninga" name="CenaPersonalnogTreninga" /> <br />
+    <button class="dodajBtn" id="btnDodajFitnesCentar">Dodaj</button>
+    <button class="izmeniBtn" id="btnIzmeniFitnesCentar">Izmeni</button><br/><br/>
+
+    <div id="divFitnesCentri"></div>
+    <button class="pocetnaBtn" id="btnPocetna">Pocetna</button>
+</body>
+</html>

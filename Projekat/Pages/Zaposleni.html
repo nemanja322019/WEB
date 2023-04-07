@@ -1,0 +1,148 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <style>
+        body {
+            margin-left: 50px;
+            margin-top: 60px;
+            background-image: url("../bg.png");
+            background-size: cover;
+        }
+
+        select {
+            left: 180px;
+            position: sticky;
+            margin-right:40px;
+        }
+
+        label {
+            position: sticky;
+
+        }
+
+        select{
+            margin-left:10px;
+            margin-top:5px;
+        }
+
+        h1 {
+            margin-bottom: 50px;
+        }
+
+    </style>
+    <script src="../Scripts/jquery-3.3.1.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var json = sessionStorage.getItem("logged");
+            var korisnik = $.parseJSON(json);
+
+            loadPage();
+            function loadPage() {
+
+                let selectCentar = document.getElementById("selectFitnesCentar");
+                var ispis = "";
+                for (let fc of korisnik.FitnesCentriVlasnistvo) {
+                    ispis += '<option value="' + fc + '">' + fc + '</option>';
+                }
+                selectCentar.innerHTML = ispis;
+
+                $.ajax({
+                    url: '/api/zaposleni',
+                    type: 'GET',
+                    data: {
+
+                    },
+                    dataType: 'json',
+                    success: function (data) {
+                        let selectPosetilac = document.getElementById("selectPosetilac");
+                        let ispisPosetilac = "";
+                        let selectTreneri = document.getElementById("selectTreneri");
+                        let ispisTreneri = "";
+                        let divBlokirani = document.getElementById("divBlokirani");
+                        let ispisBlokirani = "";
+
+                        $.each(data, function (key, value) {
+                            if (value.Uloga === "Posetilac") {
+                                ispisPosetilac += '<option value="' + value.KorisnickoIme + '">' + value.KorisnickoIme + '</option>';
+                            }
+                            if (value.Uloga === "Trener" && value.Blokiran === false) {
+                                ispisTreneri += '<option value="' + value.KorisnickoIme + '">' + value.KorisnickoIme + '</option>';
+                            }
+                            if (value.Blokiran === true) {
+                                ispisBlokirani += value.KorisnickoIme + "<br>";
+                            }
+                        });
+                        selectPosetilac.innerHTML = ispisPosetilac;
+                        selectTreneri.innerHTML = ispisTreneri;
+                        divBlokirani.innerHTML = ispisBlokirani;
+                    },
+                    error: function (xhr, status, error) {
+                        alert(error);
+                    }
+                });
+
+            }
+
+            $('#btnBlokirajTrenera').click(function () {
+                $.ajax({
+                    url: '/api/zaposleni',
+                    type: 'GET',
+                    data: {
+                        "KorisnickoIme": $('#selectTreneri').find(":selected").text()
+                    },
+                    dataType: 'json',
+                    success: function (data) {
+                        alert('Trener blokiran!');
+                        loadPage();
+                    },
+                    error: function (xhr, status, error) {
+                        alert(error);
+                    }
+                });
+            });
+
+
+            $('#btnDodajTrenera').click(function () {
+                $.ajax({
+                    url: '/api/zaposleni',
+                    type: 'GET',
+                    data: {
+                        "KorisnickoIme": $('#selectPosetilac').find(":selected").text(),
+                        "NazivFitnesCentra": $('#selectFitnesCentar').find(":selected").text()
+                    },
+                    dataType: 'json',
+                    success: function (data) {
+                        alert('Trener dodat!');
+                        $('#korisnickoime').val('');
+                        loadPage();
+                    },
+                    error: function (xhr, status, error) {
+                        alert(error);
+                    }
+                });
+            });
+
+            $('#btnPocetna').click(function () {
+                window.location = '/index.html';
+            });
+        });
+    </script>
+</head>
+<body>
+    <h2>Zaposli trenera:</h2>
+    <label>Korisnicko ime:</label> <select id="selectPosetilac"></select><br>
+    <label>Fitnes centar:</label> <select id="selectFitnesCentar"></select>
+    <button id="btnDodajTrenera">Dodaj</button>
+
+    <h2>Treneri</h2>
+    <label>Korisnicko ime:</label>
+    <select id="selectTreneri"></select>
+    <button id="btnBlokirajTrenera">Blokiraj trenera</button>
+    <h3>Blokirani</h3>
+    <div id="divBlokirani"></div>
+    <br>
+    <button id="btnPocetna">Pocetna</button>
+</body>
+</html>

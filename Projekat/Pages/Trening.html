@@ -1,0 +1,242 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <style>
+        body {
+            margin-left: 50px;
+            background-image: url("../bg.png");
+            background-size: cover;
+        }
+
+        input {
+            margin-top: 5px;
+            left: 250px;
+            position: sticky;
+        }
+
+        label {
+            margin-right: 5px;
+            margin-top: 5px;
+        }
+
+        h1 {
+            margin-bottom: 50px;
+        }
+
+        .styled-table {
+            border-collapse: collapse;
+            font-size: 0.9em;
+            font-family: sans-serif;
+            min-width: 400px;
+            background-color: white;
+            border-top-color: black;
+            border-bottom-color: black;
+            border-left-color: black;
+            border-right-color: black;
+        }
+
+            .styled-table th,
+            .styled-table td {
+                padding: 5px;
+                text-align: center;
+            }
+
+            .styled-table tr,
+            .styled-table td {
+                padding: 5px;
+                text-align: center;
+            }
+
+        .dodajBtn{
+            margin-top:5px;
+            margin-left:200px;
+        }
+
+        .izmeniBtn {
+            margin-left: 60px;
+        }
+
+        .pocetnaBtn {
+            margin-top: 5px;
+        }
+    </style>
+    <script src="../Scripts/jquery-3.3.1.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var json = sessionStorage.getItem("logged");
+            var korisnik = $.parseJSON(json);
+
+            loadPage();
+
+            function loadPage() {
+                json = sessionStorage.getItem("logged");
+                korisnik = $.parseJSON(json);
+                $.ajax({
+                    url: '/api/trening',
+                    type: 'GET',
+                    data: {
+
+                    },
+                    dataType: 'json',
+                    success: function (data) {
+                        let divTreninzi = document.getElementById("divTreninzi");
+                        var ispis = "";
+                        ispis = '<table class="styled-table" border = 1><tr><th>Naziv</th><th>Tip treninga</th><th>Fitnes centar</th><th>Trajanje</th><th>Vreme</th><th>Maksimalan broj posetilaca</th><th>Spisak posetilaca</th></tr>';
+                        $.each(data, function (key, value) {
+                            if (value.Istekao === false) {
+                                for (let temp of korisnik.AngazovaniTreninzi) {
+                                    if (temp === value.Naziv) {
+                                        ispis += '<tr><td>' + value.Naziv + '</td>';
+                                        ispis += '<td>' + value.TipTreninga + '</td>';
+                                        ispis += '<td>' + value.FitnesCentar + '</td>';
+                                        ispis += '<td>' + value.Trajanje + '</td>';
+                                        ispis += '<td>' + value.Vreme + '</td>';
+                                        ispis += '<td>' + value.MaksimalanBrojPosetilaca + '</td>';
+                                        let spisak = "";
+                                        for (let pos of value.SpisakPosetilaca) {
+                                            spisak += pos + '\n';
+                                        }
+                                        ispis += '<td>' + spisak + '</td>';
+                                        ispis += '<td><button class="obrisi" name="' + value.Naziv + '">Obrisi</button></td>';
+                                        ispis += '</tr>';
+                                    }
+                                }
+                            }
+                        });
+                        ispis += '</table>'
+                        divTreninzi.innerHTML = ispis;
+                    },
+                    error: function (xhr, status, error) {
+                        alert(error);
+                    }
+                });
+
+            }
+
+            $('#btnDodajTrening').click(function () {
+                $.ajax({
+                    url: '/api/trening',
+                    type: 'POST',
+                    data: {
+                        'Naziv': $('#Naziv').val(),
+                        'TipTreninga': $('#TipTreninga').val(),
+                        'FitnesCentar': korisnik.FitnesCentarAngazovan,
+                        'Trajanje': $('#Trajanje').val(),
+                        'Vreme': $('#Vreme').val(),
+                        'MaksimalanBrojPosetilaca': $('#MaksimalanBrojPosetilaca').val()
+                    },
+                    dataType: 'json',
+                    success: function (data) {
+                        alert('Trening kreiran!');
+                        $.ajax({
+                            url: '/api/profilna',
+                            type: 'GET',
+                            data: {
+                                'korisnickoIme': korisnik.KorisnickoIme,
+                                'nazivTreninga': $('#Naziv').val()
+                            },
+                            dataType: 'json',
+                            success: function (data) {
+                                sessionStorage.setItem('logged', JSON.stringify(data));
+                                loadPage();
+                            },
+                            error: function (xhr, status, error) {
+                                alert(error);
+                            }
+                        });
+                    },
+                    error: function (xhr, status, error) {
+                        alert(error);
+                    }
+                });
+            });
+
+            $('#btnIzmeniTrening').click(function () {
+                $.ajax({
+                    url: '/api/trening',
+                    type: 'PUT',
+                    data: {
+                        'Naziv': $('#Naziv').val(),
+                        'TipTreninga': $('#TipTreninga').val(),
+                        'FitnesCentar': korisnik.FitnesCentarAngazovan,
+                        'Trajanje': $('#Trajanje').val(),
+                        'Vreme': $('#Vreme').val(),
+                        'MaksimalanBrojPosetilaca': $('#MaksimalanBrojPosetilaca').val()
+                    },
+                    dataType: 'json',
+                    success: function (data) {
+                        alert('Uspesna izmena!');
+                        loadPage();
+                    },
+                    error: function (xhr, status, error) {
+                        alert(error);
+                    }
+                });
+            });
+
+            $(document).on('click', '.obrisi', function (e) {
+                $.ajax({
+                    url: '/api/trening',
+                    type: 'GET',
+                    data: {
+                        'TreningNaziv': e.target.name
+                    },
+                    dataType: 'json',
+                    success: function (data) {
+                        alert('Trening obrisan!');
+                        let index = korisnik.AngazovaniTreninzi.indexOf(data);
+                        korisnik.AngazovaniTreninzi.splice(index, 1);
+                        sessionStorage.setItem('logged', JSON.stringify(korisnik));
+
+                        $.ajax({
+                            url: '/api/zaposleni',
+                            type: 'PUT',
+                            data: {
+                                'KorisnickoIme': korisnik.KorisnickoIme,
+                                'TreningNaziv': e.target.name
+                            },
+                            dataType: 'json',
+                            success: function (data) {
+
+                                loadPage();
+                            },
+                            error: function (xhr, status, error) {
+                                alert(error);
+                            }
+                        });
+
+                        loadPage();
+                    },
+                    error: function (xhr, status, error) {
+                        alert(error);
+                    }
+                });
+            });
+
+
+
+            $('#btnPocetna').click(function () {
+                window.location = '/index.html';
+            });
+        });
+    </script>
+</head>
+<body>
+    <h2>Treninzi</h2>
+    <div id="divTreninzi"></div>
+
+    <br />
+    <label>Naziv:</label> <input type="text" id="Naziv" name="Naziv" /> <br />
+    <label>TipTreninga:</label> <input type="text" id="TipTreninga" name="TipTreninga" /><br />
+    <label>Trajanje:</label> <input type="text" id="Trajanje" name="Trajanje" /> <br />
+    <label>Vreme:</label> <input type="text" id="Vreme" name="Vreme" /> <br />
+    <label>Maksimalan broj posetilaca:</label> <input type="text" id="MaksimalanBrojPosetilaca" name="MaksimalanBrojPosetilaca" /> <br />
+    <button class="dodajBtn" id="btnDodajTrening">Dodaj</button>
+    <button class="izmeniBtn" id="btnIzmeniTrening">Izmeni</button><br>
+
+    <button id="btnPocetna">Pocetna</button>
+
+</body>
+</html>

@@ -1,0 +1,320 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <style>
+        body {
+            margin-left: 50px;
+            background-image: url("../bg.png");
+            background-size: cover;
+        }
+
+        input {
+            margin-top:5px;
+        }
+
+        label {
+            margin-right: 5px;
+            margin-top: 5px;
+        }
+
+        h1 {
+
+            margin-bottom: 50px;
+        }
+
+        .styled-table {
+            border-collapse: collapse;
+            font-size: 0.9em;
+            font-family: sans-serif;
+            min-width: 400px;
+            background-color: white;
+            border-top-color: black;
+            border-bottom-color: black;
+            border-left-color: black;
+            border-right-color: black;
+        }
+
+            .styled-table th,
+            .styled-table td {
+                padding: 5px;
+                text-align: center;
+            }
+
+            .styled-table tr,
+            .styled-table td {
+                padding: 5px;
+                text-align: center;
+            }
+
+        .sort{
+            width:100%;
+        }
+
+        .nazivInput{
+            margin-left:40px;
+        }
+
+        .odInput{
+            width:100px;
+            margin-left:10px;
+            margin-right:10px;
+        }
+
+        .doInput {
+            width: 100px;
+            margin-left: 10px;
+        }
+
+        .pocetnaBtn {
+            margin-top: 5px;
+        }
+
+        
+    </style>
+    <script src="../Scripts/jquery-3.3.1.js"></script>
+    <script src="../Scripts/moment.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var json = sessionStorage.getItem("logged");
+            var korisnik = $.parseJSON(json);
+            var state = false;
+            var currentData;
+            var newData;
+
+            loadPage();
+            function loadPage() {
+                json = sessionStorage.getItem("logged");
+                korisnik = $.parseJSON(json);
+
+                $('#divPretragaPosetilac').hide();
+                $('#divPretragaTrener').hide();
+                if (korisnik.Uloga === "Posetilac") {
+                    $('#divPretragaPosetilac').show();
+                }
+                if (korisnik.Uloga === "Trener") {
+                    $('#divPretragaTrener').show();
+                }
+
+                $.ajax({
+                    url: '/api/trening',
+                    type: 'GET',
+                    data: {
+
+                    },
+                    dataType: 'json',
+                    success: function (data) {
+                        currentData = data;
+                        loadTable(currentData);
+                    },
+                    error: function (xhr, status, error) {
+                        alert(error);
+                    }
+                });
+            }
+
+            function loadTable(data) {
+
+                let divTreninzi = document.getElementById("divTreninzi");
+                var ispis = "";
+                ispis = '<table class="styled-table" border = 1><tr><th><button class="sort" id="sortNaziv">Naziv</button></th><th><button class="sort" id="sortTipTreninga">Tip treninga</button></th><th>Fitnes centar</th><th>Trajanje</th><th><button class="sort" id="sortVreme">Vreme</button></th><th>Maksimalan broj posetilaca</th><th>Spisak posetilaca</th></tr>';
+                $.each(data, function (key, value) {
+
+                    if (korisnik.Uloga === "Posetilac") {
+                        let naslov = document.getElementById("naslov");
+                        naslov.innerHTML = "Prethodni treninzi";
+                        for (let temp of value.SpisakPosetilaca) {
+                            if (temp === korisnik.KorisnickoIme && value.Istekao === true) {
+                                ispis += '<tr><td>' + value.Naziv + '</td>';
+                                ispis += '<td>' + value.TipTreninga + '</td>';
+                                ispis += '<td>' + value.FitnesCentar + '</td>';
+                                ispis += '<td>' + value.Trajanje + '</td>';
+                                ispis += '<td>' + value.Vreme + '</td>';
+                                ispis += '<td>' + value.MaksimalanBrojPosetilaca + '</td>';
+                                let spisak = "";
+                                for (let pos of value.SpisakPosetilaca) {
+                                    spisak += pos + '\n';
+                                }
+                                ispis += '<td>' + spisak + '</td>';
+                                ispis += '</tr>';
+                            }
+                        }
+                    }
+
+                    if (korisnik.Uloga === "Trener") {
+                        let naslov = document.getElementById("naslov");
+                        naslov.innerHTML = "Svi treninzi";
+                        for (let temp of korisnik.AngazovaniTreninzi) {
+                            if (temp === value.Naziv) {
+                                ispis += '<tr><td>' + value.Naziv + '</td>';
+                                ispis += '<td>' + value.TipTreninga + '</td>';
+                                ispis += '<td>' + value.FitnesCentar + '</td>';
+                                ispis += '<td>' + value.Trajanje + '</td>';
+                                ispis += '<td>' + value.Vreme + '</td>';
+                                ispis += '<td>' + value.MaksimalanBrojPosetilaca + '</td>';
+                                let spisak = "";
+                                for (let pos of value.SpisakPosetilaca) {
+                                    spisak += pos + '\n';
+                                }
+                                ispis += '<td>' + spisak + '</td>';
+                                ispis += '</tr>';
+                            }
+                        }
+                    }
+                });
+                ispis += '</table>'
+                divTreninzi.innerHTML = ispis;
+                newData = data;
+            }
+
+            $(document).on('click', '.sort', function (e) {
+                var idClicked = e.target.id;
+
+                if (idClicked === "sortNaziv") {
+                    if (state === false) {
+                        newData.sort((a, b) => {
+                            let fa = a.Naziv.toLowerCase(),
+                                fb = b.Naziv.toLowerCase();
+                            if (fa < fb) {
+                                return -1;
+                            }
+                            if (fa > fb) {
+                                return 1;
+                            }
+                            return 0;
+                        });
+                        state = true;
+                    }
+                    else {
+                        newData.sort((a, b) => {
+                            let fa = a.Naziv.toLowerCase(),
+                                fb = b.Naziv.toLowerCase();
+                            if (fa > fb) {
+                                return -1;
+                            }
+                            if (fa < fb) {
+                                return 1;
+                            }
+                            return 0;
+                        });
+                        state = false;
+                    }
+                }
+                else if (idClicked === "sortTipTreninga") {
+                    if (state === false) {
+                        newData.sort((a, b) => {
+                            let fa = a.TipTreninga.toLowerCase(),
+                                fb = b.TipTreninga.toLowerCase();
+                            if (fa < fb) {
+                                return -1;
+                            }
+                            if (fa > fb) {
+                                return 1;
+                            }
+                            return 0;
+                        });
+                        state = true;
+                    }
+                    else {
+                        newData.sort((a, b) => {
+                            let fa = a.TipTreninga.toLowerCase(),
+                                fb = b.TipTreninga.toLowerCase();
+                            if (fa > fb) {
+                                return -1;
+                            }
+                            if (fa < fb) {
+                                return 1;
+                            }
+                            return 0;
+                        });
+                        state = false;
+                    }
+                }
+                else {
+                    if (state === false) {
+                        newData.sort((a, b) => {
+                            let temp = moment(a.Vreme, 'DD/MM/YYYY HH:mm').format("MM/DD/YYYY HH:mm");
+                            let dateA = Date.parse(temp);
+                            temp = moment(b.Vreme, 'DD/MM/YYYY HH:mm').format("MM/DD/YYYY HH:mm");
+                            let dateB = Date.parse(temp);
+                            return dateA - dateB;
+                        });
+                        state = true;
+                    }
+                    else {
+                        newData.sort((a, b) => {
+                            let temp = moment(a.Vreme, 'DD/MM/YYYY HH:mm').format("MM/DD/YYYY HH:mm");
+                            let dateA = Date.parse(temp);
+                            temp = moment(b.Vreme, 'DD/MM/YYYY HH:mm').format("MM/DD/YYYY HH:mm");
+                            let dateB = Date.parse(temp);
+                            return dateB - dateA;
+                        });
+                        state = false;
+                    }
+                }
+                loadTable(newData);
+            });
+
+            $('#btnSearchPosetilac').click(function () {
+
+                let naz = $('#NazivPosetilac').val();
+                let tip = $('#TipTreningaPosetilac').val();
+                let centar = $('#FitnesCentarPosetilac').val();
+                let temp = [];
+                $.each(currentData, function (key, value) {
+                    if ((!naz || value.Naziv === naz) && (!tip || value.TipTreninga === tip) && (!centar || value.FitnesCentar === centar)) {
+                        temp.push(value);
+                    }
+                });
+
+                loadTable(temp);
+            });
+
+            $('#btnSearchTrener').click(function () {
+                let naz = $('#NazivTrener').val();
+                let tip = $('#TipTreningaTrener').val();
+                let vremeOd = $('#VremeOdTrener').val();
+                let VremeDo = $('#VremeDoTrener').val();
+                let temp = [];
+                $.each(currentData, function (key, value) {
+
+                    let year = new Date(value.Vreme).getFullYear();
+                    if ((!naz || value.Naziv === naz) && (!tip || value.TipTreninga === tip) && (!vremeOd || year >= vremeOd) && (!VremeDo || year <= VremeDo)) {
+                        temp.push(value);
+                    }
+                });
+
+                loadTable(temp);
+            });
+
+            $('#btnPocetna').click(function () {
+                window.location = '/index.html';
+            });
+        });
+    </script>
+</head>
+<body>
+    <h2 id="naslov">Svi treninzi</h2>
+    <div id="divTreninzi"></div>
+    <br />
+    <div>
+        <div id="divPretragaPosetilac" hidden>
+            <h3>Pretraga:</h3>
+            <label>Naziv:</label> <input class="nazivInput" type="text" id="NazivPosetilac" name="NazivPosetilac" /> <br />
+            <label>Tip treninga:</label> <input type="text" id="TipTreningaPosetilac" name="TipTreningaPosetilac" /><br />
+            <label>Fitnes centar:</label><input type="text" id="FitnesCentarPosetilac" name="FitnesCentarPosetilac" /> <br />
+            <input type="submit" value="Search" id="btnSearchPosetilac" />
+        </div>
+        <div id="divPretragaTrener" hidden>
+            <h3>Pretraga:</h3>
+            <label>Naziv:</label> <input class="nazivInput" type="text" id="NazivTrener" name="NazivTrener" /> <br />
+            <label>Tip treninga:</label> <input class="tipTreningaInput" type="text" id="TipTreningaTrener" name="TipTreningaTrener" /><br />
+            <label>Opseg godina:</label> <br />Od:<input class="odInput" type="number" id="VremeOdTrener" name="VremeOdTrener" />Do:<input class="doInput" type="number" id="VremeDoTrener" name="VremeDoTrener" /><br />
+            <input type="submit" value="Search" id="btnSearchTrener" />
+        </div>
+
+        <button class="pocetnaBtn" id="btnPocetna">Pocetna</button>
+    </div>
+</body>
+</html>
