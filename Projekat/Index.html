@@ -1,0 +1,343 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <meta charset="utf-8" />
+    <style>
+        body {
+            background-image: url("bg.png");
+            background-size: cover;
+
+        }
+        div{
+            float:left;
+        }
+
+        
+
+        h1 {
+            text-align: center;
+            font-size:40pt;
+            /*background-color:red;*/
+        }
+
+        .styled-table {
+            border-collapse: collapse;
+            font-size: 0.9em;
+            font-family: sans-serif;
+            min-width: 400px;
+            background-color: white;
+            border-top-color: black;
+            border-bottom-color: black;
+            border-left-color: black;
+            border-right-color: black;
+        }
+        .styled-table th,
+        .styled-table td {
+
+            padding: 5px;
+            text-align: center;
+        }
+        .styled-table tr,
+        .styled-table td {
+            padding: 5px;
+            text-align: center;
+        }
+    
+
+        .sort {
+            width: 100%;
+
+        }
+
+        .treningBtn {
+            margin-right:4px;
+        }
+
+        .pretraga{
+            margin-left:380px;
+            margin-right:20px;
+            
+        }
+
+         .profile{
+           padding:2px;
+
+        }
+
+        .menadzment{
+            margin-right:100px;
+            margin-top:-20px;
+        }
+
+        .content {
+            position: fixed;
+            top: 55%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            margin-top:70px;
+        }
+
+    </style>
+    <script src="Scripts/jquery-3.3.1.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var state = false;
+            var currentData;
+            var korisnik;
+
+            loadFitnesCentri();
+            function loadFitnesCentri() {
+                $.get("/api/fitnes_centri", function (data, status) {
+                    data.sort((a, b) => {
+                        let fa = a.Naziv.toLowerCase(),
+                            fb = b.Naziv.toLowerCase();
+                        if (fa < fb) {
+                            return -1;
+                        }
+                        if (fa > fb) {
+                            return 1;
+                        }
+                        return 0;
+                    });
+                    loadTable(data);
+                });
+
+                $('#divTrener').hide();
+                $('#divVlasnik').hide();
+                $('#divProfile').hide();
+                $('#divRegister').show();
+
+                if (sessionStorage.getItem("logged") !== null) {
+                    var json = sessionStorage.getItem("logged");
+                    korisnik = $.parseJSON(json);
+
+                    $('#divRegister').hide();
+                    $('#divProfile').show();
+                    $('#btnSviTreninzi').hide();
+
+                    if (korisnik.Uloga === "Posetilac") {
+                        $('#btnSviTreninzi').show();
+                        let btnTreninzi = document.getElementById("btnSviTreninzi");
+                        btnTreninzi.innerHTML = "Prethodni treninzi";
+                    }
+                    if (korisnik.Uloga === "Trener") {
+                        $('#btnSviTreninzi').show();
+                        let btnTreninzi = document.getElementById("btnSviTreninzi");
+                        btnTreninzi.innerHTML = "Svi treninzi";
+                        $('#divTrener').show();
+                    }
+
+                    if (korisnik.Uloga === "Vlasnik") {
+                        $('#divVlasnik').show();
+                        $('#btnSviTreninzi').hide();
+                    }
+
+
+                }
+
+            }
+
+            function loadTable(data) {
+                let tableOfUsers = '<table class="styled-table" border="1">';
+                tableOfUsers += '<tr><th><button class="sort" id="sortNaziv">Naziv</button></th><th><button id="sortAdresa" class="sort">Adresa</button></th><th><button id="sortGodina" class="sort">Godina otvaranja</button></th></tr>';
+                for (element in data) {
+                    if (data[element].Obrisan == false) {
+                        let fitnesCentar = '<td>' + data[element].Naziv + '</td>';
+                        fitnesCentar += '<td>' + data[element].Adresa + '</td>';
+                        fitnesCentar += '<td>' + data[element].GodinaOtvaranja + '</td>';
+                        fitnesCentar += '<td><button class="details" name="' + data[element].Naziv + '">Detalji</button></td>';
+                        tableOfUsers += '<tr>' + fitnesCentar + '</tr>';
+                    }
+                }
+                tableOfUsers += '</table>';
+                $('#content').html(tableOfUsers);
+                currentData = data;
+            }
+
+            $(document).on('click', '.details', function (e) {
+                let naziv = e.target.name.replace(/ /g, "_");
+                window.location = '/pages/detalji.html?naziv=' + naziv;
+            });
+
+            $('#btnLogout').click(function () {
+                sessionStorage.clear();
+                alert('Uspesna odjava.');
+                loadFitnesCentri();
+            });
+
+            $('#btnProfile').click(function () {
+                window.location = '/pages/profilna.html';
+            });
+
+            $('#btnRegister').click(function () {
+                window.location = '/pages/registracija.html';
+            });
+
+            $('#btnLogin').click(function () {
+                window.location = '/pages/prijava.html';
+            });
+
+            $('#btnZaposleni').click(function () {
+                window.location = '/pages/zaposleni.html';
+            });
+
+            $('#btnFitnesCentriOpcije').click(function () {
+                window.location = '/pages/fitnescentriopcije.html';
+            });
+
+            $('#btnTrening').click(function () {
+                window.location = '/pages/trening.html';
+            });
+
+            $('#btnSviTreninzi').click(function () {
+                window.location = '/pages/svitreninzi.html';
+            });
+
+            $('#btnKomentari').click(function () {
+                window.location = '/pages/svikomentari.html';
+            });
+
+            $('#btnSearch').click(function () {
+                let naziv = $('#naziv').val();
+                let adresa = $('#adresa').val();
+                let godinaotvaranja = $('#godinaotvaranja').val();
+
+                if (godinaotvaranja) {
+                    if (godinaotvaranja < 1980 || godinaotvaranja > 2022) {
+                        alert('Dozvoljene godine su 1980 - 2022 !')
+                        return;
+                    }
+                }
+
+                $.get('/api/fitnes_centri', { 'naziv': naziv, 'adresa': adresa, 'godinaotvaranja': godinaotvaranja },
+                    function (result) {
+                        $('#naziv').val('');
+                        $('#adresa').val('');
+                        $('#godinaotvaranja').val('');
+
+                        loadTable(result);
+                    }
+                )
+            });
+
+
+            $(document).on('click', '.sort', function (e) {
+                var idClicked = e.target.id;
+
+                if (idClicked === "sortNaziv") {
+                    if (state == false) {
+                        currentData.sort((a, b) => {
+                            let fa = a.Naziv.toLowerCase(),
+                                fb = b.Naziv.toLowerCase();
+                            if (fa < fb) {
+                                return -1;
+                            }
+                            if (fa > fb) {
+                                return 1;
+                            }
+                            return 0;
+                        });
+                        state = true;
+                    }
+                    else {
+                        currentData.sort((a, b) => {
+                            let fa = a.Naziv.toLowerCase(),
+                                fb = b.Naziv.toLowerCase();
+                            if (fa > fb) {
+                                return -1;
+                            }
+                            if (fa < fb) {
+                                return 1;
+                            }
+                            return 0;
+                        });
+                        state = false;
+                    }
+                }
+                else if (idClicked === "sortAdresa") {
+                    if (state == false) {
+                        currentData.sort((a, b) => {
+                            let fa = a.Adresa.toLowerCase(),
+                                fb = b.Adresa.toLowerCase();
+                            if (fa < fb) {
+                                return -1;
+                            }
+                            if (fa > fb) {
+                                return 1;
+                            }
+                            return 0;
+                        });
+                        state = true;
+                    }
+                    else {
+                        currentData.sort((a, b) => {
+                            let fa = a.Adresa.toLowerCase(),
+                                fb = b.Adresa.toLowerCase();
+                            if (fa > fb) {
+                                return -1;
+                            }
+                            if (fa < fb) {
+                                return 1;
+                            }
+                            return 0;
+                        });
+                        state = false;
+                    }
+                }
+                else {
+                    if (state == false) {
+                        currentData.sort((a, b) => {
+                            return a.GodinaOtvaranja - b.GodinaOtvaranja;
+                        });
+                        state = true;
+                    }
+                    else {
+                        currentData.sort((a, b) => {
+                            return b.GodinaOtvaranja - a.GodinaOtvaranja;
+                        });
+                        state = false;
+                    }
+                }
+                loadTable(currentData);
+            });
+
+        });
+
+
+    </script>
+</head>
+<body>
+    <h1>Fitnes centri</h1>
+
+
+    <div class="pretraga" id="pretraga">
+        <h3>Pretraga:</h3>
+        <label>Naziv:</label> <input type="text" id="naziv" name="naziv" /> <br />
+        <label>Adresa:</label> <input type="text" id="adresa" name="adresa" /><br />
+        <label>Godina otvaranja:</label> <input type="text" id="godinaotvaranja" name="godinaotvaranja" /><br />
+        <input type="submit" value="Pretrazi" id="btnSearch" />    
+    </div>
+    <div class="register" id="divRegister">
+        <button id="btnRegister">Registracija</button>
+        <button id="btnLogin">Prijava</button>
+    </div>
+    <div class="profile" id="divProfile" hidden>
+        <button id="btnProfile">Profile</button>
+        <button id="btnLogout">Logout</button><br /><br />
+        <button id="btnSviTreninzi">Svi treninzi</button>
+        <div id="divTrener" hidden>
+            <button class="treningBtn" id="btnTrening">Trening opcije</button>
+        </div>
+        <div class="menadzment" id="divVlasnik" hidden>
+            <h2>Menadzment:</h2>
+            <button id="btnZaposleni">Zaposleni</button>
+            <button id="btnFitnesCentriOpcije">Fitnes centri opcije</button>
+            <button id="btnKomentari">Odobri komentar</button>
+        </div>
+    </div>
+
+    <div id="content" class="content"></div>
+
+</body>
+</html>

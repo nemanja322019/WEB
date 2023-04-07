@@ -1,0 +1,81 @@
+[
+    {
+        "KorisnickoIme": "Vlasnik1",
+        "Lozinka": "vlasnik1",
+        "Ime": "Sima",
+        "Prezime": "Simic",
+        "Pol": "Muski",
+        "Email": "simasimic@gmail.com",
+        "DatumRodjenja": "03.04.1977",
+        "Uloga": "Vlasnik",
+        "PrijavljeniTreninzi": [],
+        "AngazovaniTreninzi": [],
+        "FitnesCentarAngazovan": null,
+        "FitnesCentriVlasnistvo": [
+            "Fitnes Centar 3",
+            "Fitnes Centar 5"
+        ],
+        "Blokiran": false
+    },
+    {
+        "KorisnickoIme": "Vlasnik2",
+        "Lozinka": "vlasnik2",
+        "Ime": "Pera",
+        "Prezime": "Peric",
+        "Pol": "Muski",
+        "Email": "peraperic@gmail.com",
+        "DatumRodjenja": "07.07.1988",
+        "Uloga": "Vlasnik",
+        "PrijavljeniTreninzi": [],
+        "AngazovaniTreninzi": [],
+        "FitnesCentarAngazovan": null,
+        "FitnesCentriVlasnistvo": [
+            "Fitnes Centar 1"
+        ],
+        "Blokiran": false
+    },
+    {
+        "KorisnickoIme": "Posetilac1",
+        "Lozinka": "posetilac1",
+        "Ime": "Nikola",
+        "Prezime": "Nikolic",
+        "Pol": "Muski",
+        "Email": "nikola@gmail.com",
+        "DatumRodjenja": "12/12/1999",
+        "Uloga": "Posetilac",
+        "PrijavljeniTreninzi": [
+            "Istekao 1",
+            "Istekao 2",
+            "Istekao 3",
+            "Trening 2",
+            "Trening 1",
+            "Trening 4",
+            "Trening 3"
+        ],
+        "AngazovaniTreninzi": [],
+        "FitnesCentarAngazovan": null,
+        "FitnesCentriVlasnistvo": [],
+        "Blokiran": false
+    },
+    {
+        "KorisnickoIme": "Trener1",
+        "Lozinka": "trener1",
+        "Ime": "Borko",
+        "Prezime": "Boric",
+        "Pol": "Muski",
+        "Email": "borko@gmail.com",
+        "DatumRodjenja": "12/09/1998",
+        "Uloga": "Trener",
+        "PrijavljeniTreninzi": [],
+        "AngazovaniTreninzi": [
+            "Trening 1",
+            "Istekao 1",
+            "Istekao 2",
+            "Istekao 3",
+            "Trening 10"
+        ],
+        "FitnesCentarAngazovan": "Fitnes Centar 3",
+        "FitnesCentriVlasnistvo": [],
+        "Blokiran": false
+    }
+]

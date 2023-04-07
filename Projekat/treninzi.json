@@ -1,0 +1,114 @@
+[
+    {
+        "Naziv": "Istekao 1",
+        "TipTreninga": "Yoga",
+        "FitnesCentar": "Fitnes Centar 3",
+        "Trajanje": 50,
+        "Vreme": "08/05/2022 21:00",
+        "MaksimalanBrojPosetilaca": 10,
+        "SpisakPosetilaca": [],
+        "Istekao": true
+    },
+    {
+        "Naziv": "Istekao 2",
+        "TipTreninga": "BodyPump",
+        "FitnesCentar": "Fitnes Centar 3",
+        "Trajanje": 50,
+        "Vreme": "08/06/2022 20:00",
+        "MaksimalanBrojPosetilaca": 10,
+        "SpisakPosetilaca": [
+            "Posetilac1"
+        ],
+        "Istekao": true
+    },
+    {
+        "Naziv": "Istekao 3",
+        "TipTreninga": "BodyPump",
+        "FitnesCentar": "Fitnes Centar 3",
+        "Trajanje": 50,
+        "Vreme": "14/06/2022 20:00",
+        "MaksimalanBrojPosetilaca": 10,
+        "SpisakPosetilaca": [
+            "Posetilac1"
+        ],
+        "Istekao": true
+    },
+    {
+        "Naziv": "Trening 1",
+        "TipTreninga": "BodyPump",
+        "FitnesCentar": "Fitnes Centar 3",
+        "Trajanje": 45,
+        "Vreme": "08/08/2022 18:00",
+        "MaksimalanBrojPosetilaca": 10,
+        "SpisakPosetilaca": [
+            "Posetilac1"
+        ],
+        "Istekao": false
+    },
+    {
+        "Naziv": "Trening 2",
+        "TipTreninga": "Yoga",
+        "FitnesCentar": "Fitnes Centar 3",
+        "Trajanje": 40,
+        "Vreme": "10/10/2022 21:00",
+        "MaksimalanBrojPosetilaca": 7,
+        "SpisakPosetilaca": [
+            "Posetilac1"
+        ],
+        "Istekao": false
+    },
+    {
+        "Naziv": "Trening 3",
+        "TipTreninga": "LesMillsTone",
+        "FitnesCentar": "Fitnes Centar 3",
+        "Trajanje": 80,
+        "Vreme": "10/10/2022 12:40",
+        "MaksimalanBrojPosetilaca": 10,
+        "SpisakPosetilaca": [
+            "Posetilac1"
+        ],
+        "Istekao": false
+    },
+    {
+        "Naziv": "Trening 4",
+        "TipTreninga": "Yoga",
+        "FitnesCentar": "Fitnes Centar 3",
+        "Trajanje": 120,
+        "Vreme": "12/07/2019 17:00",
+        "MaksimalanBrojPosetilaca": 5,
+        "SpisakPosetilaca": [
+            "Posetilac1"
+        ],
+        "Istekao": false
+    },
+    {
+        "Naziv": "Trening 7",
+        "TipTreninga": "BodyPump",
+        "FitnesCentar": "Fitnes Centar 3",
+        "Trajanje": 30,
+        "Vreme": "19/07/2022 18:00",
+        "MaksimalanBrojPosetilaca": 9,
+        "SpisakPosetilaca": [],
+        "Istekao": false
+    },
+    {
+        "Naziv": "Trening 8",
+        "TipTreninga": "BodyPump",
+        "FitnesCentar": "Fitnes Centar 3",
+        "Trajanje": 50,
+        "Vreme": "19/08/2022 18:00",
+        "MaksimalanBrojPosetilaca": 4,
+        "SpisakPosetilaca": [],
+        "Istekao": false
+    },
+    {
+        "Naziv": "Trening 10",
+        "TipTreninga": "Yoga",
+        "FitnesCentar": "Fitnes Centar 3",
+        "Trajanje": 30,
+        "Vreme": "04/08/2022 21:00",
+        "MaksimalanBrojPosetilaca": 7,
+        "SpisakPosetilaca": [],
+        "Istekao": false
+    }
+]

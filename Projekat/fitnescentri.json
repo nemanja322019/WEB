@@ -1,0 +1,38 @@
+[
+    {
+        "Naziv": "Fitnes Centar 1",
+        "Adresa": "Adresa 1",
+        "GodinaOtvaranja": "2007",
+        "Vlasnik": "Vlasnik2",
+        "MesecnaClanarina": 2500.0,
+        "GodisnjaClanarina": 15000.0,
+        "CenaTreninga": 350.0,
+        "CenaGrupnogTreninga": 500.0,
+        "CenaPersonalnogTreninga": 700.0,
+        "Obrisan": false
+    },
+    {
+        "Naziv": "Fitnes Centar 3",
+        "Adresa": "Adresa 3",
+        "GodinaOtvaranja": "2005",
+        "Vlasnik": "Vlasnik1",
+        "MesecnaClanarina": 1600.0,
+        "GodisnjaClanarina": 10000.0,
+        "CenaTreninga": 250.0,
+        "CenaGrupnogTreninga": 350.0,
+        "CenaPersonalnogTreninga": 500.0,
+        "Obrisan": false
+    },
+    {
+        "Naziv": "Fitnes Centar 5",
+        "Adresa": "Misina 5, Kraljevo, 10222",
+        "GodinaOtvaranja": "2010",
+        "Vlasnik": "Vlasnik1",
+        "MesecnaClanarina": 1000.0,
+        "GodisnjaClanarina": 100.0,
+        "CenaTreninga": 1001.0,
+        "CenaGrupnogTreninga": 1001.0,
+        "CenaPersonalnogTreninga": 1000.0,
+        "Obrisan": false
+    }
+]
